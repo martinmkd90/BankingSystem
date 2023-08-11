@@ -34,6 +34,7 @@ namespace BankingSyst.API
             services.AddScoped<ILoanEligibilityService, LoanEligibilityService>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<INotificationService, NotificationService>();
+            services.AddScoped<IUserService, UserService>();
 
 
 
@@ -43,9 +44,9 @@ namespace BankingSyst.API
 
             services.AddCors(options =>
             {
-                options.AddDefaultPolicy(builder =>
+                options.AddPolicy("AllowAllOrigins", builder =>
                 {
-                    builder.WithOrigins("http://your_frontend_domain.com")
+                    builder.AllowAnyOrigin()
                            .AllowAnyHeader()
                            .AllowAnyMethod();
                 });
@@ -59,6 +60,8 @@ namespace BankingSyst.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors("AllowAllOrigins");
+
             app.UseRouting();
 
             app.UseAuthentication(); // Ensure this is placed before UseAuthorization
@@ -68,8 +71,6 @@ namespace BankingSyst.API
             {
                 endpoints.MapControllers();
             });
-
-            app.UseCors();
         }
     }
 }

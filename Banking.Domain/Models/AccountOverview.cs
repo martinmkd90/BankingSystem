@@ -11,7 +11,7 @@ namespace Banking.Domain.Models
         public double AvailableBalance { get; set; } = new double();
         public int RecentTransactionCount { get; set; } = new int();
         public Account Account { get; set; } = new Account();
-        public string AccountStatus { get; set; } = string.Empty; // e.g., "Good Standing", "Overdrawn", etc.
+        public string AccountStatus { get; set; } // e.g., "Good Standing", "Overdrawn", etc.
 
         [NotMapped]
         public List<string> Alerts { get; set; } = new List<string>(); // e.g., "Overdraft protection is off", "Unusual activity detected", etc.

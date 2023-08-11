@@ -10,7 +10,7 @@ namespace Banking.Domain.Models
     {
         public int ProductChannelMappingId { get; set; }
         public int ProductChannelID { get; set; }
-        public string ProductChannelName { get; set; } = string.Empty;
-        public string ProductChannelDescription { get; set; } = string.Empty;
+        public string ProductChannelName { get; set; }
+        public string ProductChannelDescription { get; set; }
     }
 }

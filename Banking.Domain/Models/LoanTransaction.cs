@@ -10,7 +10,7 @@ namespace Banking.Domain.Models
         public double Amount { get; set; }
         public DateTime Date { get; set; }
         public LoanTransactionType Type { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
     }
 
 }

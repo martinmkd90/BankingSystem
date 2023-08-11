@@ -15,6 +15,6 @@ namespace Banking.Domain.Models
         public DateTime? EndDate { get; set; }
         public LoanStatus Status { get; set; } // e.g., "Pending", "Approved", "Rejected"
         public string? RejectionReason { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; }
     }
 }

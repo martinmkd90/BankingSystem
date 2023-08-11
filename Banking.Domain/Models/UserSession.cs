@@ -6,9 +6,9 @@ namespace Banking.Domain.Models
     {
         [Key]
         public int UserId { get; set; }
-        public string Token { get; set; } = string.Empty;
+        public string Token { get; set; }
         public string? IPAddress { get; set; }
-        public string UserAgent { get; set; } = string.Empty;
+        public string UserAgent { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
     }

@@ -2,7 +2,7 @@
 {
     public class TokenSettings
     {
-        public string ApiKey { get; set; } = string.Empty;
+        public string ApiKey { get; set; }
         public int TokenExpiryMinutes { get; set; }
     }
 }

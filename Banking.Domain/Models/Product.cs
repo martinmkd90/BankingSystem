@@ -9,12 +9,12 @@ namespace Banking.Domain.Models
     public class Product
     {
         public int ProductID { get; set; }
-        public string ProductName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Features { get; set; } = string.Empty; // This can be a JSON string
-        public string Benefits { get; set; } = string.Empty;
-        public string TermsAndConditions { get; set; } = string.Empty;
-        public string EligibilityCriteria { get; set; } = string.Empty;
-        public string RequiredDocuments { get; set; } = string.Empty; // This can be a JSON string
+        public string ProductName { get; set; }
+        public string Description { get; set; }
+        public string Features { get; set; } // This can be a JSON string
+        public string Benefits { get; set; }
+        public string TermsAndConditions { get; set; }
+        public string EligibilityCriteria { get; set; }
+        public string RequiredDocuments { get; set; } // This can be a JSON string
     }
 }

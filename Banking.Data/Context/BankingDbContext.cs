@@ -120,7 +120,10 @@ namespace Banking.Data.Context
                 .HasKey(pcm => new { pcm.ProductID, pcm.ChannelID });
 
             modelBuilder.Entity<LoanApplication>()
-                .HasKey(pcm => new { pcm.LoanApplicationID, pcm.UserID });            
+                .HasKey(pcm => new { pcm.LoanApplicationID, pcm.UserID });
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Id).ValueGeneratedOnAdd();
         }
     }
 }

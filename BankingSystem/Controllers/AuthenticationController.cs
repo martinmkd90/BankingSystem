@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Banking.API.Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/authentication")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -19,7 +19,48 @@ namespace Banking.API.Controllers
         public IActionResult Register(UserDto model)
         {
             if (model.RoleId == null)
-                return BadRequest("RoleId is required for registration.");
+            {
+                var defaultRole = _userService.GetRoleByName("Customer");
+                if (defaultRole != null)
+                {
+                    model.RoleId = defaultRole.Id;
+                }
+                else
+                {
+                    return BadRequest("Customer role not found.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingUser = _userService.GetUserByUsername(model.Username);
+            if (existingUser != null)
+            {
+                return Conflict(new
+                {
+                    error = new
+                    {
+                        code = "USERNAME_EXISTS",
+                        message = "The username is already taken. Please choose another one."
+                    }
+                });
+            }
+
+            var existingEmail = _userService.GetUserByEmail(model.Email);
+            if (existingEmail != null)
+            {
+                return Conflict(new
+                {
+                    error = new
+                    {
+                        code = "EMAIL_EXISTS",
+                        message = "An account with this email already exists."
+                    }
+                });
+            }
 
             var user = _userService.Register(model);
             if (user == null)
@@ -32,11 +73,14 @@ namespace Banking.API.Controllers
         public IActionResult Login(UserDto model)
         {
             var user = _userService.Login(model);
-            if (user == null)
-                return Unauthorized();
 
-            var token = _userService.GenerateJwtToken(user);
-            return Ok(new { Token = token });
+            if (user == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            var jwtToken = _userService.GenerateJwtToken(user, Response);
+
+            return Ok(new { User = user, Token = jwtToken });
         }
+
     }
 }

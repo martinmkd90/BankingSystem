@@ -2,6 +2,8 @@
 using Banking.Domain.Models;
 using Banking.Services.DTOs;
 using Banking.Services.Interfaces;
+using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -28,9 +30,19 @@ namespace Banking.Services.Services
             return _context.Users.SingleOrDefault(u => u.Username == username);
         }
 
+        public User GetUserByEmail(string email)
+        {
+            return _context.Users.SingleOrDefault(u => u.Email == email);
+        }
+
         public User GetUserById(int userId)
         {
             return _context.Users.Find(userId);
+        }
+
+        public Role GetRoleByName(string roleName)
+        {
+            return _context.Roles.SingleOrDefault(r => r.Name == roleName);
         }
 
         public User Register(UserDto model)
@@ -38,10 +50,12 @@ namespace Banking.Services.Services
             // Using BCrypt.Net for hashing
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
+            //var getLastId = _context.Users.Max(u => u.Id);
             var user = new User
             {
                 Username = model.Username,
                 PasswordHash = passwordHash,
+                Email = model.Email,
                 RoleId = model.RoleId ?? 1
             };
 
@@ -53,7 +67,8 @@ namespace Banking.Services.Services
 
         public User? Login(UserDto model)
         {
-            var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+            bool isEmail = model.Username != null && model.Username.Contains('@');
+            var user = _context.Users.SingleOrDefault(u => isEmail ? u.Email == model.Username : u.Username == model.Username);
 
             // Check if the user account is locked out
             if (user != null && user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
@@ -221,7 +236,7 @@ namespace Banking.Services.Services
                    password.Any(char.IsPunctuation); // At least one special character
         }
 
-        public string GenerateJwtToken(User user)
+        public string GenerateJwtToken(User user, HttpResponse response)
         {
             var key = Encoding.ASCII.GetBytes(_settings.SecretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -235,8 +250,20 @@ namespace Banking.Services.Services
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(securityToken);
+            var jwtToken = tokenHandler.WriteToken(securityToken);
+
+            // Set the JWT token in an HttpOnly cookie.
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+            response.Cookies.Append("token", jwtToken, cookieOptions);
+
+            return jwtToken;
         }
+
 
         public async Task<bool> IsPasswordCompromised(string password)
         {

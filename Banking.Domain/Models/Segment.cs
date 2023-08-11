@@ -9,7 +9,7 @@ namespace Banking.Domain.Models
     public class Segment
     {
         public int SegmentID { get; set; }
-        public string SegmentName { get; set; } = string.Empty;
-        public string SegmentDescription { get; set; } = string.Empty;
+        public string SegmentName { get; set; }
+        public string SegmentDescription { get; set; }
     }
 }

@@ -89,7 +89,7 @@ namespace Banking.API.Controllers
             }
 
             // If MFA is not enabled, generate a JWT token
-            var token = _userService.GenerateJwtToken(user);
+            var token = _userService.GenerateJwtToken(user, Response);
 
             // Create a session record in the database
             var userSession = new UserSession
@@ -182,7 +182,7 @@ namespace Banking.API.Controllers
 
             // Generate and return the JWT token
             var user = _userService.GetUserById(mfaVerification.UserId);
-            var token = _userService.GenerateJwtToken(user);
+            var token = _userService.GenerateJwtToken(user, Response);
             return Ok(new { token });
         }
 
