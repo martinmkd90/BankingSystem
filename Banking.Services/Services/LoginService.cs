@@ -70,7 +70,7 @@ namespace Banking.Services.Services
             if (user != null)
             {
                 user.FailedLoginAttempts += 1;
-                if (user.FailedLoginAttempts >= 5) // Assuming 5 failed attempts will lock the account
+                if (user.FailedLoginAttempts >= 5) // 5 failed attempts will lock the account
                 {
                     user.IsLocked = true;
                 }

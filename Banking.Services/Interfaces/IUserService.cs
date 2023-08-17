@@ -25,5 +25,8 @@ namespace Banking.Services.Interfaces
         string HashPassword(string password);
         void UpdateUser(User user);
         Role GetRoleByName(string name);
+        Task<User> GetUserByIdAsync(string userId);
+        Task<User> UpdateUserProfileAsync(string userId, UpdateProfileRequest model);
+
     }
 }
