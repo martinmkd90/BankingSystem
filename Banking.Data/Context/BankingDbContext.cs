@@ -2,16 +2,17 @@
 using Banking.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using static System.Net.Mime.MediaTypeNames;
-using System.Threading.Channels;
 using Banking.Domain.Mappings;
+using Microsoft.Extensions.Logging;
 
 namespace Banking.Data.Context
 {
     public class BankingDbContext : DbContext
     {
-        public BankingDbContext(DbContextOptions<BankingDbContext> options): base(options)
+        private readonly ILogger<BankingDbContext> _logger;
+        public BankingDbContext(DbContextOptions<BankingDbContext> options, ILogger<BankingDbContext> logger): base(options)
         {
+            _logger = logger;
         }
 
         public DbSet<User> Users { get; set; }
@@ -124,6 +125,12 @@ namespace Banking.Data.Context
 
             modelBuilder.Entity<User>()
                 .Property(u => u.Id).ValueGeneratedOnAdd();
+        }
+
+        public override int SaveChanges()
+        {
+            _logger.LogInformation("Saving changes to the database");
+            return base.SaveChanges();
         }
     }
 }

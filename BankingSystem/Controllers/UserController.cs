@@ -5,9 +5,9 @@ using Banking.Services.DTOs;
 
 namespace Banking.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -21,7 +21,7 @@ namespace Banking.API.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            var userId = User.Identity.Name; // Assuming the user's ID is stored as the Name claim in JWT
+            var userId = Convert.ToInt32(User.Identity);
             var user = await _userService.GetUserByIdAsync(userId);
 
             if (user == null)
@@ -36,7 +36,7 @@ namespace Banking.API.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest model)
         {
-            var userId = User.Identity.Name;
+            var userId = Convert.ToInt32(User.Identity);
             var result = await _userService.UpdateUserProfileAsync(userId, model);
 
             if (result == null)

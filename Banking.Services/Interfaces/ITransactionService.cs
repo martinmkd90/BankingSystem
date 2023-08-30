@@ -12,7 +12,7 @@ namespace Banking.Services.Services
     {
         Transaction RecordTransaction(int accountId, double amount, TransactionType type);
         List<Transaction> GetTransactions(int accountId);
-        List<Transaction> GetTransactionsForUser(int userId);
+        Task<PagedTransactionResponse> GetTransactionsForUser(int userId, int page, int pageSize);
         IEnumerable<Transaction> GetRecentTransactionsForUser(int userId, DateTime fromDate);
         void AddTransaction(Transaction transaction);
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Banking.Services.DTOs
 {
-    public class UpdateProfileRequest
+    public class UserProfileDTO
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

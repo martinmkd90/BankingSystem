@@ -2,16 +2,18 @@
 using Banking.Domain.Enums;
 using Banking.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Banking.Services.Services
 {
     public class TransactionService : ITransactionService
     {
         private readonly BankingDbContext _context;
-
-        public TransactionService(BankingDbContext context)
+        private readonly ILogger<TransactionService> _logger;
+        public TransactionService(BankingDbContext context, ILogger<TransactionService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public Transaction RecordTransaction(int accountId, double amount, TransactionType type)
@@ -34,13 +36,25 @@ namespace Banking.Services.Services
         {
             return _context.Transactions.Where(t => t.AccountId == accountId).AsNoTracking().ToList();
         }
-        public List<Transaction> GetTransactionsForUser(int userId)
+        public async Task<PagedTransactionResponse> GetTransactionsForUser(int userId, int page, int pageSize)
         {
-            return _context.Transactions
-                           .Where(t => _context.Accounts.Any(a => a.Id == t.AccountId && a.UserId == userId))
-                           .AsNoTracking()
-                           .ToList();
+            var transactions = await _context.Transactions
+                                       .Where(t => _context.Accounts.Any(a => a.Id == t.AccountId && a.UserId == userId))
+                                       .Skip((page - 1) * pageSize)
+                                       .Take(pageSize)
+                                       .AsNoTracking()
+                                       .ToListAsync();
+
+            var totalCount = _context.Transactions
+                                     .Count(t => _context.Accounts.Any(a => a.Id == t.AccountId && a.UserId == userId));
+
+            return new PagedTransactionResponse
+            {
+                Transactions = transactions,
+                TotalCount = totalCount
+            };
         }
+
         public IEnumerable<Transaction> GetRecentTransactionsForUser(int userId, DateTime fromDate)
         {
             return _context.Transactions
@@ -55,9 +69,18 @@ namespace Banking.Services.Services
             {
                 throw new ArgumentNullException(nameof(transaction), "Transaction cannot be null.");
             }
+            try
+            {
+                _logger.LogInformation("Performing transaction");
 
-            _context.Transactions.Add(transaction);
-            _context.SaveChanges();
+                _context.Transactions.Add(transaction);
+                _context.SaveChanges();
+                _logger.LogInformation("Transaction performed successfully");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("An error occurred while performing the transaction", ex);
+            }
         }
     }
 }

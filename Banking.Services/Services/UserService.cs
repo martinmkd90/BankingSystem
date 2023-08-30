@@ -277,22 +277,37 @@ namespace Banking.Services.Services
             return responseBody.Contains(sha1String);
         }
 
-        public async Task<User> GetUserByIdAsync(string userId)
+        public async Task<User?> GetUserByIdAsync(int userId)
         {
-            return await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(userId);            
+
+            return new User
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user?.Email,
+                PhoneNumber = user.PhoneNumber,
+            } ?? null;
         }
 
-        public async Task<User?> UpdateUserProfileAsync(string userId, UpdateProfileRequest model)
+        public async Task<bool> UpdateUserProfileAsync(int userId, UpdateProfileRequest updateProfileRequest)
         {
             var user = await _context.Users.FindAsync(userId);
-            if (user == null) 
-                return null;
-            
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.Email = model.Email;
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.FirstName = updateProfileRequest.FirstName;
+            user.LastName = updateProfileRequest.LastName;
+            user.Email = updateProfileRequest.Email;
+            user.PhoneNumber = updateProfileRequest.PhoneNumber;
+
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
-            return user;
+
+            return true;
         }
+
     }
 }

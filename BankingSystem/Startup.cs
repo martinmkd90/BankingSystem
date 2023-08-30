@@ -4,6 +4,10 @@ using Banking.Domain.Models;
 using Banking.Services.Interfaces;
 using Banking.Services.Services;
 using Banking.API.Controllers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Text;
 
 namespace BankingSyst.API
 {
@@ -33,6 +37,7 @@ namespace BankingSyst.API
             services.AddTransient<ILoanCalculatorService, LoanCalculatorService>();
             services.AddScoped<ILoanEligibilityService, LoanEligibilityService>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddScoped<ITransactionService, TransactionService>();
             services.AddTransient<INotificationService, NotificationService>();
             services.AddScoped<IUserService, UserService>();
 
@@ -41,6 +46,21 @@ namespace BankingSyst.API
             services.AddControllers();
             services.AddMemoryCache();
             services.AddHttpClient();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = Configuration["JwtSettings:Issuer"],
+                ValidAudience = Configuration["JwtSettings:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSettings:SecretKey"] ?? ""))
+            };
+        });
 
             services.AddCors(options =>
             {
@@ -59,13 +79,14 @@ namespace BankingSyst.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseSerilogRequestLogging();
             app.UseCors("AllowAllOrigins");
 
             app.UseRouting();
 
             app.UseAuthentication(); // Ensure this is placed before UseAuthorization
             app.UseAuthorization();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
